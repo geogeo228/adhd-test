@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Неофициальный тест на СДВГ</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐿️</text></svg>">
+<style>
+  :root{
+    --bg:#0d0b14;
+    --card:#17131f;
+    --ink:#f4f1ff;
+    --dim:#8d86a8;
+    --yellow:#ffd60a;
+    --pink:#ff2e88;
+    --mint:#00f5d4;
+    --violet:#8b5cf6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex;flex-direction:column;align-items:center;
+    padding:24px 16px 48px;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 20% 0%, rgba(139,92,246,.18), transparent 45%),
+                     radial-gradient(circle at 80% 100%, rgba(255,46,136,.14), transparent 45%);
+  }
+  .wrap{width:100%;max-width:680px}
+  header.top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .bar{flex:1;height:10px;background:#241d33;border-radius:99px;overflow:hidden}
+  .bar>span{display:block;height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,var(--mint),var(--yellow),var(--pink));
+    transition:width .35s ease}
+  .counter{font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .score{font-size:13px;color:var(--yellow);font-weight:800;white-space:nowrap;
+    background:#241d33;padding:6px 10px;border-radius:99px;border:1px solid #3a3050}
+  .screen{background:var(--card);border:1px solid #2a2340;border-radius:22px;
+    padding:30px 26px 26px;box-shadow:0 24px 60px rgba(0,0,0,.45);
+    animation:pop .28s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+  .en{font-size:13px;line-height:1.5;color:var(--dim);font-style:italic;margin-top:12px}
+  .q{font-size:clamp(21px,4.6vw,30px);line-height:1.28;font-weight:800;letter-spacing:-.01em}
+  .note{margin-top:14px;color:var(--yellow);font-size:15px;line-height:1.45;font-weight:600}
+  .opts{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  button{
+    font-family:inherit;cursor:pointer;border:none;border-radius:14px;
+    font-weight:800;transition:transform .12s ease, filter .12s ease, background .12s;
+  }
+  button:active{transform:scale(.96)}
+  .btn-main{
+    background:var(--pink);color:#fff;padding:15px 22px;font-size:17px;width:100%;
+    box-shadow:0 8px 24px rgba(255,46,136,.35)}
+  .btn-main:hover{filter:brightness(1.1)}
+  .btn-ghost{
+    background:transparent;color:var(--dim);border:1px solid #3a3050;
+    padding:12px 18px;font-size:15px}
+  .btn-ghost:hover{color:var(--ink);border-color:var(--dim)}
+  .chip{
+    background:#241d33;color:var(--ink);border:1px solid #3a3050;
+    padding:13px 17px;font-size:16px;min-width:56px}
+  .chip:hover{border-color:var(--mint);color:var(--mint)}
+  .chip.on{background:var(--mint);color:#08201c;border-color:var(--mint)}
+  .sel{outline:3px solid var(--yellow);outline-offset:3px}
+  .opt-yes,.opt-no{
+    flex:1;padding:18px;font-size:19px;min-width:140px}
+  .opt-yes{background:var(--mint);color:#08201c;box-shadow:0 8px 24px rgba(0,245,212,.25)}
+  .opt-no{background:#241d33;color:var(--ink);border:1px solid #3a3050}
+  .opt-yes:hover{filter:brightness(1.08)}
+  .opt-no:hover{border-color:var(--dim)}
+  .multi-list{display:flex;flex-direction:column;gap:9px;margin-top:22px}
+  .multi-item{
+    display:flex;align-items:center;gap:12px;background:#241d33;
+    border:1px solid #3a3050;border-radius:13px;padding:13px 15px;
+    font-size:16px;font-weight:600;text-align:left;color:var(--ink);width:100%}
+  .multi-item .tick{width:22px;height:22px;border-radius:7px;border:2px solid #4a3f66;
+    flex:0 0 auto;display:grid;place-items:center;font-size:13px;color:transparent}
+  .multi-item.on{border-color:var(--pink);background:rgba(255,46,136,.12)}
+  .multi-item.on .tick{background:var(--pink);border-color:var(--pink);color:#fff}
+  .nav{display:flex;gap:10px;margin-top:18px}
+  .nav .btn-ghost{flex:0 0 auto}
+  .title{
+    font-size:clamp(30px,7vw,52px);font-weight:900;line-height:1.05;
+    text-transform:uppercase;letter-spacing:-.02em;
+    background:linear-gradient(92deg,var(--yellow),var(--pink) 55%,var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .kicker{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--mint);
+    font-weight:800;margin-bottom:12px}
+  .lead{font-size:17px;line-height:1.55;color:#cfc9e6;margin-top:16px}
+  .disc{font-size:13px;color:var(--dim);line-height:1.5;margin-top:18px;
+    border-left:3px solid var(--pink);padding-left:12px}
+  .bignum{font-size:clamp(72px,18vw,130px);font-weight:900;line-height:1;
+    color:var(--yellow);text-shadow:0 0 40px rgba(255,214,10,.35);font-variant-numeric:tabular-nums}
+  .cat{font-size:clamp(24px,5.5vw,36px);font-weight:900;text-transform:uppercase;
+    color:var(--mint);margin-top:8px;line-height:1.15}
+  .cat-en{font-size:13px;color:var(--dim);font-style:italic;margin-top:6px}
+  .flavor{font-size:17px;line-height:1.55;color:#cfc9e6;margin-top:18px}
+  .float{position:fixed;pointer-events:none;font-weight:900;font-size:26px;color:var(--mint);
+    animation:fly .9s ease-out forwards;z-index:99}
+  @keyframes fly{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-70px)}}
+  .foot{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px}
+  .foot a{text-decoration:none}
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);
+    background:var(--mint);color:#08201c;font-weight:800;padding:12px 20px;border-radius:12px;
+    opacity:0;transition:.25s;pointer-events:none;font-size:15px}
+  .toast.show{opacity:1;transform:translateX(-50%)}
+  .fab{position:fixed;right:18px;bottom:18px;z-index:60;display:none;
+    background:#241d33;color:var(--ink);border:1px solid #3a3050;
+    padding:14px 18px;font-size:15px;border-radius:99px;
+    box-shadow:0 12px 32px rgba(0,0,0,.5)}
+  .fab:hover{border-color:var(--pink);color:var(--pink)}
+  .fab.show{display:block}
+  .fab.claimed{background:var(--mint);color:#08201c;border-color:var(--mint)}
+  @media (max-width:520px){
+    .screen{padding:24px 18px 20px}
+    .opt-yes,.opt-no{min-width:0}
+    .fab{right:12px;bottom:12px;padding:12px 14px;font-size:14px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="bar"><span id="fill"></span></div>
+    <div class="counter" id="counter"></div>
+    <div class="score" id="score">0 баллов</div>
+  </header>
+  <main id="app"></main>
+</div>
+<div class="toast" id="toast">Скопировано</div>
+<button class="fab" id="fab">🙈 Я отвлёкся и вернулся</button>
+
+<script>
+/* Источник: субтитры YouTube "The Unofficial ADHD Test - Quiz for ADHD Adults"
+   (Rick Has ADHD, https://youtu.be/fmdL48xY7Ng). EN - дословно из субтитров, RU - перевод. */
+const VIDEO = "https://youtu.be/fmdL48xY7Ng";
+
+/* t: "yn"    - Да/Нет, балл за "Да" (yes)
+   t: "chips" - выбор из кнопок, о: [[метка, балл], ...]
+   t: "multi" - множественный выбор, +1 за каждый пункт
+   t: "info"  - без счёта, одна кнопка
+   note - жёлтая подпись под вопросом */
+const Q = [
+/* --- интро --- */
+{t:"yn", yes:1,
+ en:"Does that sound like far too much work?",
+ ru:"Этот тест звучит для тебя как слишком много работы?"},
+{t:"yn", yes:1,
+ en:"If you missed what I just said and so you plan to give yourself a point for every question because you think there's a prize for the highest score, give yourself a point.",
+ ru:"Если ты проскочил мимо того, что здесь было, и поэтому жмёшь «Да» на каждом вопросе, потому что за максимальный балл дают приз, это тоже балл."},
+{t:"info",
+ en:"If you're going to give yourself zero points just because you're not the boss of me, you might want to take a test for oppositional defiant disorder.",
+ ru:"Если ты нажал «Нет» просто из принципа «а мне не указ», тебе бы пройти тест на оппозиционно-вызывающее расстройство.",
+ note:"Этот балл не даётся. Пока что."},
+{t:"yn", yes:1,
+ en:"You can track your score with a pen and paper. If you instantly decided that's too much bother, I'll just remember. Give yourself one point.",
+ ru:"Если ты мгновенно подумал «некогда, я запомню», это балл."},
+{t:"yn", yes:1,
+ en:"Are you thinking I'm taking too long?",
+ ru:"Тебе кажется, что этот тест слишком долго тянет?"},
+{t:"chips", o:[["Не терял",0],["Терял нить",1]],
+ en:"Give yourself a point for each time you lose track of what I'm saying and bonus points for actually going off and doing something else altogether and then coming back a week later and finding this quiz is still there on your screen.",
+ ru:"Балл за каждый раз, когда ты теряешь нить этого теста.",
+ note:"Бонус за возвращение, кнопка внизу экрана. Жми, когда вернёшься."},
+/* --- прерывание и самооценка --- */
+{t:"yn", yes:1,
+ en:"One of the symptoms of ADHD is interrupting. If you tend to interrupt people, give yourself a point.",
+ ru:"Один из симптомов СДВГ: перебивание. Если ты привык перебивать людей, это балл."},
+{t:"yn", yes:2,
+ en:"If you don't interrupt people, but get very enthused about things you're thinking of and you just have to tell everyone and you blurt it out. If you don't blurt it out now, you're just going to forget it. That's interrupting. Give yourself two points. One for interrupting and one for poor self-assessment.",
+ ru:"Если не перебиваешь, но так загораешься мыслью, что вываливаешь её всем сразу, «а то забуду». Это тоже перебивание. Два балла: один за перебивание, один за плохую самооценку."},
+{t:"yn", yes:2,
+ en:"Many ADHD folks are not good at self-assessment. If you think you are really good at self-assessment, give yourself two points. Because the people who rate themselves highly for self-assessment are actually the worst at self-assessment, which is why they assess their self-assessment skills so high.",
+ ru:"Люди с СДВГ часто плохо разбираются в себе. Если ты считаешь, что отлично разбираешься в себе, это два балла. Потому что те, кто оценивает свою самооценку выше всех, разбираются в ней хуже всех. Поэтому и оценивают."},
+/* --- работы --- */
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5",5],["6",6],["7",7],["8",8],["9",9],["10",10],["15",15],["20",20],["30",30],["40",40],["48",48]],
+ en:"How many jobs have you had in the past 3 years? Score one point for each new job or contract up to a maximum of 48 points.",
+ ru:"Сколько работ у тебя было за последние 3 года? Балл за каждую новую работу или контракт, максимум 48 баллов."},
+/* --- сенсорика --- */
+{t:"yn", yes:1,
+ en:"If you cut all the tags off your clothes because they drive you nuts, give yourself a point.",
+ ru:"Срезаешь все ярлыки с одежды, потому что они бесконечно бесят? Это балл."},
+{t:"yn", yes:2,
+ en:"When you find socks or underwear that don't bug you, do you buy a 10-year supply? Two points. Because ADHD can also be about sensory and emotional regulation.",
+ ru:"Нашёл носки или бельё, которые не бесят, и покупаешь запас на 10 лет? Два балла. Потому что СДВГ бывает ещё и про сенсорную и эмоциональную регуляцию."},
+{t:"yn", yes:1,
+ en:"When I said emotional regulation, did you go, \"What? Oh my god. What? What?\" Give yourself a point.",
+ ru:"Когда выше мелькнуло непонятное словосочетание «эмоциональная регуляция» и ты не понял, что это такое, в голове прозвучало: «Что? О боже. Что? Что?» Балл."},
+{t:"yn", yes:2,
+ en:"If you've ever been worth several million dollars and now live with your mom, give yourself two points.",
+ ru:"Когда-то на твоём счету были миллионы, а теперь ты живёшь с мамой? Два балла."},
+/* --- банкомат и покупки --- */
+{t:"chips", o:[["Нет",0],["Думал",1],["Реально пошёл",2]],
+ en:"Have you ever thought about robbing your bank rather than waiting three minutes at the ATM? Give yourself a point. If you actually started going, give yourself a bonus point.",
+ ru:"Когда-нибудь думал ограбить банк, вместо того чтобы ждать три минуты у банкомата? Балл. Если реально пошёл в сторону банка, ещё бонусный балл."},
+/* склейка: быстрая закупка + забытый список */
+{t:"yn", yes:2,
+ en:"If you can do a week's worth of food shopping in 7 minutes, give yourself a point. If it's all unhealthy stuff because you forgot your shopping list for that new healthy diet you were just going to start, give yourself one more.",
+ ru:"Успеваешь закупиться на неделю за 7 минут? И всё это сплошной нездоровый мусор, потому что ты забыл список покупок для новой здоровой диеты, которую только собирался начать? Два балла."},
+{t:"yn", yes:1,
+ en:"If you shop in the middle of the night because there's no lineup and it'll save you 3 minutes, give yourself a point.",
+ ru:"Ходишь за покупками ночью: очередей нет и экономишь аж 3 минуты? Балл."},
+/* --- ходьба и meetings --- */
+{t:"yn", yes:1,
+ en:"If you pace while you're on the phone, give yourself a point.",
+ ru:"Ходишь взад-вперёд, пока говоришь по телефону? Балл."},
+{t:"yn", yes:1,
+ en:"If you get up and pace during meetings, give yourself another point.",
+ ru:"Встаёшь и ходишь во время встреч? Ещё балл."},
+{t:"chips", o:[["Нет",0],["Был",1],["Моя свадьба",2]],
+ en:"If you rocked and paced during a wedding, give yourself a point. If it was your wedding, two points.",
+ ru:"Качался и ходил по залу на чужой свадьбе? Балл. Если это была твоя свадьба, два балла."},
+{t:"yn", yes:1,
+ en:"If you're starting to fade, give yourself a point. And a protein bar. We can be enthusiastic but have trouble sustaining interest, and protein actually helps.",
+ ru:"Начинаешь засыпать и терять нить? Это балл. И съешь что-нибудь с белком: энтузиазма у нас хватает, а удержать интерес трудно, и белок тут реально помогает.",
+ note:"Перекус в комплект не входит."},
+{t:"yn", yes:2,
+ en:"If you would drive 300 miles out of your way to avoid a slowdown in traffic, give yourself two points.",
+ ru:"Готов проехать 300 миль в объезд, лишь бы не попасть в ползущую пробку? Два балла."},
+{t:"yn", yes:2,
+ en:"Do you feel like small talk is boring and you just want people to get on with it? Do you feel the same way about foreplay?",
+ ru:"Светская болтовня бесит, хочешь, чтобы люди наконец перешли к делу? А с прелюдией точно так же? Два балла."},
+{t:"yn", yes:4,
+ en:"Are you no longer listening? Give yourself two points. Hello. two points.",
+ ru:"Ты уже отвалился от чтения? Два балла. Ты там? Ещё два."},
+{t:"yn", yes:6,
+ en:"If you're still watching, but you also put on a cat video, give yourself six points and maybe buy a cat.",
+ ru:"Всё ещё держишься, но параллельно уже включил видео с котиком? Шесть баллов. И, может, заведи кота."},
+/* --- говорить да --- */
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5+",5]],
+ en:"Do you tend to say yes to every new idea or project and then realize you can't possibly fit it in and feel bad that you said yes and then hope they forget? One point for every time you've thought, I should have used protection.",
+ ru:"Говоришь «да» каждой новой идее или проекту, потом понимаешь, что не влезешь, чувствуешь вину и надеешься, что забудут? Проекты плодятся как дети, поэтому балл за каждую мысль «надо было предохраняться»."},
+/* --- вождение --- */
+{t:"yn", yes:1,
+ en:"If you drive like a maniac to get to a job you hate, give yourself a point.",
+ ru:"Гонишь как угорелый на работу, которую ненавидишь? Балл."},
+{t:"yn", yes:1,
+ en:"If you think you're a better driver when you speed, give yourself a point.",
+ ru:"Думаешь, за рулём ты лучше, когда жмёшь на газ? Балл."},
+{t:"yn", yes:3,
+ en:"If other people agree you are a better driver when you speed, give yourself three points because we can hyperfocus with adrenaline.",
+ ru:"Другие тоже согласны, что ты лучше за рулём, когда жмёшь на газ? Три балла: на адреналине гиперфокус включается мгновенно."},
+{t:"yn", yes:3,
+ en:"In fact, are you a cop, firefighter, military person, journalist, flight crew, inventor, salesperson, professional athlete, emergency responder, entertainer, stock market trader, or entrepreneur. Three points.",
+ ru:"Ты коп, пожарный, военный, журналист, бортпроводник, изобретатель, продавец, спортсмен, спасатель, шоумен, трейдер или предприниматель? Три балла."},
+/* --- официальный список --- */
+{t:"chips", o:[["5 баллов",5],["6, и мне правда нормально",6]],
+ en:"If you've read the official list of ADHD symptoms and thought this is just normal, give yourself five points, maybe six.",
+ ru:"Читал официальный список симптомов СДВГ и подумал: «это же просто нормально»? Пять баллов. Может, шесть."},
+/* --- занятость и списки --- */
+{t:"yn", yes:1,
+ en:"Are you always busy doing doing and never finish what matters.",
+ ru:"Всегда чем-то занят-занят, но до того, что важно, так и не доходишь?"},
+{t:"chips", o:[["Нет",0],["Купил",1],["И не прочитал ни одной",2]],
+ en:"Have you purchased more than five books on organizing? Five books on procrastination. Bonus points if you haven't read any of them yet.",
+ ru:"Купил больше пяти книг по организации? Пять книг по прокрастинации? Бонус, если ни одну из них ещё не прочитал."},
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5+",5]],
+ en:"Give yourself one point for every time you've procrastinated on something of vital importance in the past hour.",
+ ru:"Балл за каждый раз, когда за последний час ты откладывал что-то жизненно важное."},
+{t:"yn", yes:1,
+ en:"Do you accomplish dozens of things on your to-do list every day, but never get to the big one that really matters?",
+ ru:"Выполняешь десятки пунктов списка в день, но до самого важного так и не доходишь?"},
+/* склейка: два вопроса про чистку зубов в один экран */
+{t:"yn", yes:2,
+ en:"Does your to-do list include eat breakfast, get dressed, brush teeth because you might forget, but mostly because you love checking things off? Do you then avoid brushing your teeth because it's boring and it takes two whole minutes?",
+ ru:"Вносишь в список «позавтракать, одеться, почистить зубы»: в основном чтобы не забыть, но ещё и потому, что обожаешь вычёркивать? А потом всё равно избегаешь чистить зубы, потому что скучно и аж две минуты? Два балла."},
+/* --- хобби --- */
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5",5],["6",6],["7",7],["8",8],["9",9],["10",10],["15",15],["20",20],["30",30]],
+ en:"Give yourself one point for every hobby you've picked up or business you've started in the past year to a maximum of 30 points.",
+ ru:"Балл за каждое хобби или дело, которое ты завёл за последний год. Максимум 30."},
+/* --- мета: засыпающий зритель --- */
+{t:"yn", yes:1,
+ en:"If you keep missing some of what I'm saying, give yourself a point. Or turn up the volume.",
+ ru:"Упускаешь часть того, что здесь написано? Это балл."},
+{t:"yn", yes:1,
+ en:"Are you interested but kind of yawning? Give yourself one point.",
+ ru:"Интересно, но зеваешь? Один балл."},
+{t:"yn", yes:2,
+ en:"Fading and tired? Give yourself two points.",
+ ru:"Уже выдыхаешься и устал? Два балла."},
+/* склейка: засыпающий зритель + шутка про гадости с телефона */
+{t:"chips", o:[["Не сплю",0],["Хочу так же",1],["Уже сплю",3],["Уже сплю и хочу так же",4]],
+ en:"Sound asleep already? Have someone else give you three points. By the way, while you're sleeping, that person is using your phone to send rude messages to your loved ones. If you think that's really funny and you want to do that to someone else now, give yourself a point and a slap on the wrist.",
+ ru:"Уже спишь? Кто-то другой засчитает тебе баллы. Кстати, пока ты спишь, он шлёт гадости твоим близким с твоего телефона. Считаешь это смешным и хочешь сделать то же кому-то? Бонус. И лёгкий шлепок по руке за такие шутки."},
+/* --- параллельные потоки --- */
+{t:"yn", yes:2,
+ en:"If your microwave oven often contains forgotten coffee, snacks, or meals that you were reheating, give yourself two points.",
+ ru:"В микроволновке часто остаётся забытый кофе, перекус или еда, которую ты разогревал? Два балла."},
+{t:"yn", yes:1,
+ en:"If you often have three coffees, drinks, snacks, or chat windows going at the same time, one point.",
+ ru:"Часто у тебя одновременно три кофе, напитка, перекуса или окна чата? Один балл."},
+{t:"yn", yes:3,
+ en:"If you have three or more relationships going at the same time, three points.",
+ ru:"Три параллельных романа и больше? Три балла."},
+/* склейка: «всю жизнь» + совет «если не всю жизнь» */
+{t:"yn", yes:3,
+ en:"If you were like this your whole life, give yourself three points. If you were not like this your whole life, get checked out for depression, anxiety, thyroid problems, or ask someone who knew you way back then as a child. Remember poor self assessment?",
+ ru:"Так было всю жизнь? Три балла. А если не всю жизнь, проверься на депрессию, тревогу и проблемы с щитовидкой. Или спроси того, кто знал тебя в детстве. Помнишь про плохую самооценку?"},
+/* --- память --- */
+{t:"yn", yes:1,
+ en:"Do you hate smoking, but you're just too agitated without nicotine?",
+ ru:"Ненавидишь курить, но без никотина слишком нервничаешь?"},
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5+",5]],
+ en:"Give yourself one point for every time you've seriously wondered if you have Alzheimer's in the past month.",
+ ru:"Балл за каждый раз, когда за последний месяц ты серьёзно задумывался, что у тебя Альцгеймер."},
+{t:"yn", yes:1,
+ en:"Do you notice little things that people miss?",
+ ru:"Замечаешь мелочи, которые другие пропускают?"},
+{t:"chips", o:[["Меньше 5",0],["5+",1],["8+",2],["12+",3]],
+ en:"Count the number of books you're currently reading. One point for five or more, two points for eight or more, three for 12 or more.",
+ ru:"Посчитай книги, которые читаешь прямо сейчас. Пять и больше: балл. Восемь: два. Двенадцать: три."},
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5+",5]],
+ en:"Give yourself a point for every report card that says you're smart, but you need to try harder.",
+ ru:"Балл за каждый табель с формулировкой «умный, но старайся больше»."},
+{t:"yn", yes:5,
+ en:"Do you constantly feel like you're underachieving and that you have this potential but for some reason you just Five points.",
+ ru:"Постоянно чувствуешь, что не реализуешь свой потенциал, что потенциал-то есть, но почему-то... Пять баллов. Фраза, кстати, тоже оборвалась."},
+{t:"yn", yes:1,
+ en:"If you read books from the middle outwards and in all directions, give yourself a point.",
+ ru:"Читаешь книги с середины и во все стороны сразу? Балл."},
+{t:"yn", yes:1,
+ en:"Do you hate haircuts because it means you have to sit for 20 minutes and do nothing and then the hairs falling down your neck are like rusty nails.",
+ ru:"Ненавидишь стрижку: двадцать минут сидеть без дела, а волосы на шее падают, как ржавые гвозди? Балл."},
+/* --- импульсивность --- */
+{t:"yn", yes:1,
+ en:"Do you start things with enthusiasm and good intentions and then it's kind of and it's there's a problem and it's you got to discuss and it's just it's it's oh look are you an impulsive shopper, impulsive eater, impulsive speaker, impulsive flurder?",
+ ru:"Начинаешь с энтузиазмом и благими намерениями, а в середине «тут надо обсудить», потом «просто...», потом «ой, смотри», и всё бросаешь? Импульсивный закупщик, импульсивный обжора, импульсивный болтун. И импульсивный... хм, субтитры тут вообще съехали."},
+{t:"yn", yes:1,
+ en:"Do you tend to overdo things and then end up burned out or physically injured?",
+ ru:"Склонен перегибать, а потом выгорать или травмироваться?"},
+{t:"yn", yes:1,
+ en:"Easily upset but then it quickly passes. One point big issue for ADHD and anger relationship killer for sure.",
+ ru:"Легко взбешиваешься, но гнев быстро проходит? Один балл. Гнев при СДВГ дело серьёзное и точно убийца отношений."},
+{t:"yn", yes:1,
+ en:"We have videos to dyslexia. Give yourself one peton.",
+ ru:"И видео про дислексию у нас есть. Один... балт.",
+ note:"Субтитры написали «point» как «peton». Дислексия в действии."},
+/* --- бардак --- */
+{t:"yn", yes:1,
+ en:"Is the kitchen a complete mess after you make one bowl of cereal?",
+ ru:"Полный бардак на кухне после одной миски хлопьев?"},
+{t:"yn", yes:1,
+ en:"You find your clean clothes in the hamper because actually hanging them up a lot of work.",
+ ru:"Чистое бельё находишь в корзине для грязного, потому что вешать его слишком долго и муторно."},
+{t:"yn", yes:1,
+ en:"Never made your bed.",
+ ru:"Никогда не заправлял кровать."},
+{t:"yn", yes:1,
+ en:"Great at figuring out some new project and then bored within 5 minutes of actually starting the work.",
+ ru:"Гений придумывать новые проекты, но через пять минут самой работы уже скучно."},
+/* --- новое новое новое --- */
+{t:"yn", yes:1,
+ en:"Do you love new jobs, new hobbies, new romances, new anything?",
+ ru:"Обожаешь новые работы, новые хобби, новые романы, всё новое?"},
+{t:"yn", yes:1,
+ en:"Has this led to a lot of impulsive purchases?",
+ ru:"Это привело к куче импульсивных покупок?"},
+{t:"yn", yes:1,
+ en:"Have they led to a lot of clutter?",
+ ru:"А они привели к куче хлама?"},
+{t:"yn", yes:1,
+ en:"Are you often multitasking even though you never set out to multitask?",
+ ru:"Часто мультитаскишь, хотя изначально и не собирался?"},
+{t:"yn", yes:1,
+ en:"Perhaps you start by deciding to do a load of hot laundry. You notice the laundry basket is still broken. You end up at the mall to get a new basket. You see a sale. You get distracted. You arrive home with a snowblower and notice the load of laundry needs doing. and you need a new basket.",
+ ru:"Например: решил загрузить бельё → увидел, что корзина всё ещё сломана → поехал в торговый центр за новой → увидел распродажу → отвлёкся → вернулся домой с снегоуборщиком, бельё всё ещё не постирано, и корзины по-прежнему нет."},
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5",5],["6",6],["7+",7]],
+ en:"Give yourself a point for every appointment or meeting or event you've forgotten in the past week.",
+ ru:"Балл за каждую забытую за последнюю неделю встречу, приём или событие."},
+/* --- креативность --- */
+{t:"yn", yes:1,
+ en:"Do people come to you for creative ideas? Give yourself a point.",
+ ru:"К тебе приходят за креативными идеями? Балл."},
+{t:"yn", yes:3,
+ en:"If you never realize that this is a strength and you assumed everyone can pour out one idea after another, give yourself three points.",
+ ru:"Никогда не понимал, что это твоя сила, и был уверен, что все так умеют и льют идеи одна за другой? Три балла."},
+/* --- время --- */
+{t:"yn", yes:1,
+ en:"Do you find that every task you take on from tidying the kitchen to finishing a report takes way longer than you guessed and way longer than it takes anyone else?",
+ ru:"Любая задача, от уборки кухни до отчёта, занимает куда дольше, чем ты оценил, и дольше, чем у всех остальных?"},
+{t:"yn", yes:1,
+ en:"If your family thinks you're weird, give yourself a point.",
+ ru:"Семья считает тебя странным? Балл."},
+{t:"yn", yes:1,
+ en:"If you think your family is dull and boring, give yourself a point.",
+ ru:"А ты считаешь семью скучной и унылой? Балл."},
+{t:"yn", yes:1,
+ en:"If your friends don't think you're weird because they're weird, too, give yourself a pat on the back and one for your friends.",
+ ru:"Друзья не считают тебя странным, потому что сами такие? Похлопай себя по плечу. Балл тебе и балл друзьям."},
+/* --- вечеринка --- */
+{t:"yn", yes:1,
+ en:"When you're in a bar or at a party, do you find it hard to understand what other people are saying and also get distracted easily?",
+ ru:"В баре или на вечеринке трудно понять, что говорят другие, и при этом легко отвлекаешься?"},
+/* --- список скуки --- */
+{t:"multi",
+ en:"Emotional. Listen to the following phrases. Give yourself one point every time you react like this. Staff meetings, someone else's long story, Facebook postings with more than two sentences, a budget. Regular routine job. 9 to 5 meditation classes, really scary horror films, walking slowly with a group of people.",
+ ru:"Эмоциональная часть. Читай фразы и кривись 😖. Балл за каждую гримасу.",
+ o:[["Совещание отдела",1],["Чужая длинная история",1],["Пост в соцсетях длиннее двух предложений",1],["Бюджет",1],["Рутинная работа с 9 до 5",1],["Курсы медитации",1],["По-настоящему жуткий хоррор",1],["Медленная прогулка с группой",1]]},
+/* --- кофеин и работа --- */
+{t:"yn", yes:1,
+ en:"Do you drink more than five coffees or caffeinated sodas in one day? And yes, Mountain Dew has more caffeine than Cokes.",
+ ru:"Больше пяти кофе или кол с кофеином в день? И да, в Mountain Dew больше кофеина, чем в Coke.",
+ note:"Это не шутка, просто факт из ролика."},
+{t:"yn", yes:1,
+ en:"Do you arrive early or stay late at work because it's quiet and you can actually focus?",
+ ru:"Приходишь рано или задерживаешься на работе, потому что тихо и наконец можно сосредоточиться?"},
+{t:"yn", yes:1,
+ en:"Do you do much better when you're given one quick task after another rather than this whole project to figure out and organize and do you sometimes feel like a failure?",
+ ru:"Ты намного лучше справляешься, когда дают одну короткую задачу за другой, а не целый проект, который надо разобрать и организовать? И иногда чувствуешь себя неудачником?"},
+{t:"yn", yes:1,
+ en:"Do you always feel like a failure?",
+ ru:"Чувствуешь себя неудачником всегда?"},
+/* --- отвлечения --- */
+{t:"yn", yes:1,
+ en:"Are you easily distracted by sounds, lights, or people around you? Oh, look, cows.",
+ ru:"Легко отвлекаешься на звуки, свет или людей вокруг? Ой, смотри, коровы."},
+{t:"yn", yes:1,
+ en:"Are you distracted by thoughts and ideas inside of you when you're on?",
+ ru:"Отвлекаешься на мысли и идеи, которые прямо у тебя внутри?"},
+{t:"yn", yes:1,
+ en:"Are you alive, alert, fun, interested, talkative, eager, energized, and then suddenly you feel beat and drowsy, and you just want to have a nap, and you just wish everyone would go home and they're still here?",
+ ru:"Ты полон жизни, бодрый, весёлый, заинтересованный, говорливый, рвёшься в бой, а потом вдруг разбитый и сонливый, хочешь вздремнуть и чтобы все уже ушли, а они всё ещё здесь?"},
+{t:"yn", yes:1,
+ en:"And do you zone out in the middle of a long sermon, a long lecture, a long sentence?",
+ ru:"И засыпаешь на середине длинной проповеди, длинной лекции... длинного предложения?"},
+/* --- организации --- */
+{t:"yn", yes:1,
+ en:"Do you invent a different organizing system every week?",
+ ru:"Изобретаешь новую систему организации каждую неделю?"},
+{t:"yn", yes:1,
+ en:"Are you always late and have no idea why?",
+ ru:"Всегда опаздываешь и не понимаешь почему?"},
+{t:"yn", yes:1,
+ en:"Does your weekly to-do list contain four months worth of stuff?",
+ ru:"В твоём списке на неделю лежит четыре месяца дел?"},
+{t:"yn", yes:1,
+ en:"If you've noticed that people often ask, \"Sorry, are you listening to me?\" Give yourself a point.",
+ ru:"Замечал, что люди часто спрашивают: «Прости, ты меня слушаешь?» Балл."},
+{t:"chips", o:[["Нет",0],["Слышал вопрос",1],["Не знаю, не слушал",2]],
+ en:"If you think you maybe someone asked, \"Are you listening to me?\" But you're not sure cuz you weren't really listening. Give yourself a couple of bonus points.",
+ ru:"Тебе кажется, что кто-то спрашивал «ты меня слушаешь?», но ты не уверен: ты и не слушал. Пара бонусных баллов."},
+/* --- файловая система --- */
+{t:"yn", yes:2,
+ en:"Do you use the shape filing system? shap stacks, heaps, and piles everywhere. Give yourself two points.",
+ ru:"Ты пользуешься системой хранения SHAP? Стопки, кучи и горы повсюду. Два балла.",
+ note:"SHAP расшифровывается как Stacks, Heaps, And Piles. Официальная система хранения."},
+/* --- инструкции --- */
+{t:"chips", o:[["Нет, не читаю",0],["Да, читаю", -30]],
+ en:"Do you actually read the instructions that come with things? Take away 30 points.",
+ ru:"Ты вообще читаешь инструкции, которые идут в коробке? Минус 30 баллов.",
+ note:"Да, минус. Инструкции читать нельзя."},
+/* --- налоги --- */
+{t:"yn", yes:1,
+ en:"Would you rather have your accountant steal all your money than have to sit and listen to how to file your taxes and invest wisely and track your spending?",
+ ru:"Лучше бы бухгалтер просто украл все твои деньги, чем сидеть и слушать, как подавать декларации, инвестировать и вести учёт расходов?"},
+{t:"chips", o:[["Нет",0],["Да, 1 год",2],["2 года",3],["3 года",4],["5 лет",6],["10+",11]],
+ en:"Are you behind in your taxes? Give yourself one point and a bonus point for every year that you are behind in filing your taxes.",
+ ru:"Затянул с налогами? Один балл, и ещё по одному бонусному за каждый просроченный год.",
+ note:"Кнопка = 1 балл + годы просрочки."},
+/* --- соцсети и одиночество --- */
+{t:"yn", yes:1,
+ en:"Do you check social media while talking to a coworker?",
+ ru:"Проверяешь соцсети, пока разговариваешь с коллегой?"},
+{t:"yn", yes:1,
+ en:"Do you ever narrate what you're doing when you're alone? All right. Making the bag, getting the egg, cracking the egg, dropping it in, stirring the egg.",
+ ru:"Когда ты один, рассказываешь вслух, что делаешь? «Ладно. Беру пакет, беру яйцо, разбиваю, опускаю, мешаю»."},
+{t:"yn", yes:1,
+ en:"You eat carefully during the day and then at night it's anything and everything.",
+ ru:"Днём ешь аккуратно и правильно, а ночью всё подряд?"},
+{t:"yn", yes:1,
+ en:"You don't just shop till you drop. You do everything till you suddenly hit the wall and drop.",
+ ru:"Ты не просто ходишь по магазинам до упада. Ты делаешь всё подряд, пока внезапно не упрёшься в стену и не рухнешь."},
+{t:"yn", yes:1,
+ en:"If you're going buggy right now and you want to get up and dance, give yourself a point and get up and dance.",
+ ru:"Если сейчас свербит встать и станцевать, это балл. Вставай, танцуй."},
+{t:"yn", yes:2,
+ en:"You find it much easier to pay attention if you've got something to fiddle with. Give yourself two points.",
+ ru:"Гораздо легче удерживать внимание, когда в руках есть что покрутить. Два балла."},
+{t:"yn", yes:1,
+ en:"Have you ever applied for a membership to something and then discovered you're already a member?",
+ ru:"Подавал заявку на членство и узнал, что ты уже член?"},
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5+",5]],
+ en:"Do you have tons of great ideas on how to get rich, be happy, change the world, get healthy? Give yourself one point for every 100 great ideas that you've had today.",
+ ru:"Тонна великих идей, как разбогатеть, быть счастливым, изменить мир, стать здоровым? Балл за каждые 100 великих идей, которые у тебя были сегодня."},
+{t:"yn", yes:1,
+ en:"Do you have one password for everything and you still forget what it is cuz it's your birthday?",
+ ru:"Один пароль на всё, и всё равно забываешь его, потому что это твой день рождения?"},
+{t:"yn", yes:1,
+ en:"Are you easily distracted? Give yourself one squirrel.",
+ ru:"Легко отвлекаешься? Тебе полагается одна белочка.",
+ note:"Одну белочку. Не спрашивай почему."},
+{t:"yn", yes:1,
+ en:"Do you work best under pressure last minute, but it drives everybody else around you nuts?",
+ ru:"Лучше работаешь в последний момент под давлением, и это сводит всех вокруг с ума?"},
+{t:"yn", yes:1,
+ en:"Does that last 5% of a big project take about 90% of your willpower?",
+ ru:"Последние 5% большого проекта забирают примерно 90% твоей воли?"},
+{t:"yn", yes:1,
+ en:"Does your handwriting look like a 5-year-old did it? Give yourself a scrawly point.",
+ ru:"Почерк как у пятилетнего? Кляксочный балл."},
+{t:"chips", o:[["0",0],["1 запись",0.5],["2",1],["3",1.5],["4+",2]],
+ en:"Half a point for every report card that had the phrase below your potential or fails to pay attention or disruptive or can't keep hands to themselves.",
+ ru:"Полбалла за каждый табель с фразами «ниже потенциала», «не обращает внимания», «нарушает дисциплину» или «не может усидеть на месте»."},
+/* --- обувь и одежда --- */
+{t:"yn", yes:1,
+ en:"Do sweaters set your skin on fire?",
+ ru:"Свитеры поджигают твою кожу?"},
+{t:"yn", yes:1,
+ en:"Do neck ties feel like they're choking you?",
+ ru:"Галстук ощущается как удавка?"},
+{t:"yn", yes:1,
+ en:"Do you wear steeltoed shoes around the house because you keep stubbing your toe?",
+ ru:"Ходишь дома в ботинках с защитным носком, потому что постоянно спотыкаешься и подбиваешь палец?"},
+{t:"yn", yes:1,
+ en:"Do you wear slip-ons because tying your shoelaces takes too long?",
+ ru:"Носишь обувь без шнуровки, потому что шнуровать слишком долго?"},
+{t:"yn", yes:1,
+ en:"Do all of your lace up shoes have broken backs because you never bother to sit down and tie them up properly. You just jam your foot in and wiggle it and wiggle it and wiggle.",
+ ru:"У всей шнурованной обуви разбиты задники, потому что ты никогда не садишься нормально зашнуроваться. Ты просто впихиваешь ногу и вертишь, вертишь, вертишь."},
+/* --- зависимости и загадки --- */
+{t:"yn", yes:1,
+ en:"Have you ever wondered if you might have an addictive personality?",
+ ru:"Когда-нибудь задумывался, что ты склонен к зависимостям?"},
+{t:"chips", o:[["Нет",0],["Да",1],["И ещё жалею их",2]],
+ en:"Do you feel like everybody else knows something, some secret that allows them to do these routine tasks that take hours? Bonus points if you actually feel kind of sorry for them.",
+ ru:"Тебе кажется, что все остальные знают какой-то секрет, который позволяет им часами делать рутинные задачи? Бонус, если ты ещё и жалеешь их."},
+/* --- школа --- */
+/* склейка: два варианта школьной успеваемости */
+{t:"yn", yes:2,
+ en:"Did you earn pretty good marks in school with minimum effort? Kind of under the radar. Or did you do really well in school, but since yeah, you probably could have done better.",
+ ru:"Получал приличные оценки при минимальных усилиях, так, под радаром? Или учился хорошо, но всё равно слышал «мог бы и лучше»? Два балла."},
+{t:"yn", yes:1,
+ en:"Are people who behave a complete mystery to you?",
+ ru:"Поведение других людей для тебя полная загадка?"},
+/* --- аварии и скорость --- */
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5+",5]],
+ en:"Give yourself a point for every car accident you've had.",
+ ru:"Балл за каждую аварию, в которую ты попадал."},
+{t:"chips", o:[["Нет",0],["Да, все на малой скорости",2]],
+ en:"Bonus points if they were at very low speed.",
+ ru:"Бонус, если все были на очень малой скорости."},
+{t:"yn", yes:1,
+ en:"Do you like to go fast when you walk, talk, drive, eat?",
+ ru:"Любишь быстро ходить, говорить, водить, есть?"},
+{t:"yn", yes:1,
+ en:"Do spicy foods overwhelm you?",
+ ru:"Острая пища валит тебя с ног?"},
+{t:"yn", yes:1,
+ en:"Do people who spend time perusing the menu and thinking about it make you crazy?",
+ ru:"Люди, которые минуту изучают меню и обдумывают выбор, сводят тебя с ума?"},
+/* --- разводы, банкротства, потери --- */
+{t:"chips", o:[["0",0],["1",3],["2",6],["3+",9]],
+ en:"Give yourself three points for every divorce.",
+ ru:"Три балла за каждый развод."},
+{t:"chips", o:[["0",0],["1",2],["2",4],["3+",6]],
+ en:"Give yourself two points for each bankruptcy.",
+ ru:"Два балла за каждое банкротство."},
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5+",5]],
+ en:"one point for each hat, glove, scarf, or umbrella you've lost in the past month.",
+ ru:"Балл за каждую потерянную шапку, перчатку, шарф или зонт за последний месяц."},
+{t:"chips", o:[["0",0],["1",2],["2",4],["3+",6]],
+ en:"Two points for losing a jacket, cell phone, or shoe.",
+ ru:"Два балла за потерянную куртку, телефон или туфлю."},
+/* --- игры и память --- */
+{t:"yn", yes:1,
+ en:"Are you spending more time on video games than at school, or work?",
+ ru:"Больше времени в видеоиграх, чем в школе или на работе?"},
+{t:"yn", yes:1,
+ en:"Are you awesome at Jeopardy and Trivial Pursuit, but can't remember the names of family members?",
+ ru:"Гений в «Что? Где? Когда?» и Trivial Pursuit, но не помнишь имена членов семьи?"},
+/* --- главный балл --- */
+{t:"yn", yes:35,
+ en:"Do you know what you should be doing, what you want to do? you know how to do it and why it's so important and yet you're still not doing it, not getting to it. Give yourself 35 points.",
+ ru:"Ты знаешь, что тебе надо делать, чего ты хочешь, как это сделать и почему это важно, и всё равно не делаешь, не доходишь до этого? Тридцать пять баллов.",
+ note:"Самый большой фиксированный балл в тесте."},
+/* --- сон --- */
+{t:"yn", yes:1,
+ en:"Find it hard to relax and fall asleep and murder to wake up.",
+ ru:"Трудно расслабиться и уснуть, и ещё труднее проснуться?"},
+{t:"info",
+ en:"Can you if you like if you want to talk about an exciting idea that and you could go like three minutes but you're and you never because you just you can't even finish one because you just it's so and people and somebody who has AD they can follow right and they get that's what you're talking but you never actually finish a one single because you don't have",
+ ru:"Ты можешь говорить об интересной идее хоть три минуты, но ты никогда... ты просто не заканчиваешь ни одной, потому что ты... люди с СДВГ же понимают, о чём ты, они слышат, что ты... но ты так и не доводишь ни одну мысль до конца, потому что ты...",
+ note:"Демонстрация вживую. Оригинал тоже оборвался."},
+{t:"chips", o:[["Нет",0],["Едва не успел",1],["Не успел",3]],
+ en:"Have you ever almost wet your pants because you were so focused on what you were doing? Two bonus points if you didn't get there in time.",
+ ru:"Настолько сосредоточился на том, что делал, что едва не описался? Балл. Если не успел добежать вовремя, ещё два бонусных балла."},
+/* --- рисковые фантазии --- */
+{t:"yn", yes:1,
+ en:"Give yourself a point if you think it would be fun to go bungee jumping, parachuting, go into space, blow stuff up, pull off a dangerous rescue, be on stage, fly a jet fighter.",
+ ru:"Думаешь, что было бы весело: прыгнуть с банджи, прыгнуть с парашютом, улететь в космос, что-нибудь взорвать, провернуть опасное спасение, выйти на сцену, пилотировать истребитель? Балл."},
+/* --- вечеринка и память --- */
+{t:"yn", yes:1,
+ en:"Can you talk with someone at a party for an hour and learn nothing about them?",
+ ru:"Можно час говорить на вечеринке и не узнать о человеке ничего?"},
+{t:"yn", yes:1,
+ en:"Is the 1-800 phone number to cancel lost credit cards on your speed dial?",
+ ru:"Номер 1-800 для блокировки потерянных карт сохранён в быстром наборе?"},
+{t:"chips", o:[["Нет",0],["Да",1],["Да, и на родах / похоронах",2]],
+ en:"Do you doodle a lot? Bonus points if you've ever doodled during a long play. A long child birth, a long funeral.",
+ ru:"Много рисуешь каракули? Бонус, если рисовал их на длинном спектакле. Или на родах. Или на похоронах."},
+{t:"yn", yes:1,
+ en:"Did you often daydream in school, even when the class was interesting?",
+ ru:"Часто витал в облаках в школе, даже когда урок был интересный?"},
+{t:"chips", o:[["0",0],["1",3],["2",6],["3+",9]],
+ en:"Give yourself three points for every college degree you are just one credit short of completing.",
+ ru:"Три балла за каждый диплом, до которого не хватило одного-единственного зачёта."},
+/* --- чтение --- */
+{t:"yn", yes:1,
+ en:"Can you read an article five times and still not remember what it said?",
+ ru:"Можешь прочитать статью пять раз и всё равно не помнить, о чём она?"},
+{t:"yn", yes:1,
+ en:"Ever get halfway through a book or a movie and realize, \"I've seen this before.\"",
+ ru:"Дошёл до половины книги или фильма и понял: «я это уже видел»?"},
+{t:"yn", yes:1,
+ en:"Do you actually focus better with music, radio, or a video playing?",
+ ru:"Действительно лучше фокусируешься, когда играет музыка, радио или видео?"},
+/* --- лень --- */
+/* склейка: «ленивый» + «боишься, что они правы» */
+{t:"yn", yes:2,
+ en:"People claim you're lazy and don't apply yourself, or you don't try hard enough. Do you worry that maybe they're right?",
+ ru:"Люди говорят, что ты ленивый, не прикладываешь усилий или не стараешься достаточно. Ты боишься, что они правы?"},
+/* --- проекты --- */
+{t:"yn", yes:1,
+ en:"Have you started working on a dozen novels, quilts, paintings, collections, musical instruments?",
+ ru:"Начал дюжину романов, лоскутных одеял, картин, коллекций, музыкальных инструментов?"},
+{t:"yn", yes:1,
+ en:"Jack of all trades, master of none, and you're cool with that?",
+ ru:"Всезнаек и мастер никакого, и тебя это устраивает?"},
+/* --- ванная и истории --- */
+{t:"yn", yes:1,
+ en:"Does the counter in your bathroom look like someone dumped boxes of old cosmetics to sort through?",
+ ru:"Столешница в ванной выглядит так, будто кто-то высыпал коробки старой косметики на сортировку?"},
+{t:"yn", yes:1,
+ en:"Has anyone ever called you a chatter box, space cadet, daydreamer?",
+ ru:"Кто-нибудь называл тебя болтуном, космонавтом или мечтателем?"},
+{t:"yn", yes:1,
+ en:"Never bored because there's always a party in your head?",
+ ru:"Никогда не скучно, потому что в голове всегда вечеринка?"},
+{t:"yn", yes:1,
+ en:"Can you retell someone else's story and make it nine times more interesting?",
+ ru:"Можешь пересказать чужую историю так, что она станет в девять раз интереснее?"},
+{t:"yn", yes:1,
+ en:"Do you find you never really cut to the chase, but you wish other people would?",
+ ru:"Никогда не переходишь к сути сам, но очень хочешь, чтобы другие это делали?"},
+{t:"chips", o:[["Нет",0],["Я себе говорю",1],["И другие говорят",2]],
+ en:"Do you frequently admonish yourself with, \"I probably shouldn't have said that.\" Do other people tell you that you probably shouldn't have said that.",
+ ru:"Часто говоришь себе: «наверное, не стоило это говорить»? А другие тоже тебе это говорят?"},
+{t:"yn", yes:1,
+ en:"Are you more comfortable with animals because people are really hard to figure out?",
+ ru:"С животными спокойнее, потому что людей понять реально сложно?"},
+/* --- скорая и поводок --- */
+{t:"chips", o:[["0",0],["1",1],["2",2],["3",3],["4",4],["5+",5]],
+ en:"One point for each emergency room visit you've had.",
+ ru:"Балл за каждый визит в травмпункт."},
+{t:"yn", yes:1,
+ en:"Did your parents actually have you on one of those leashes that look so awful but probably saved your life?",
+ ru:"Родители реально водили тебя на том самом поводке, который выглядит ужасно, но, скорее всего, спас тебе жизнь?"},
+/* --- под давлением --- */
+/* склейка: три вопроса-каскада «под давлением» */
+{t:"yn", yes:3,
+ en:"When the pressure is on, are you great? Are you creative? Are you loyal, adventurous, risktaker?",
+ ru:"Под давлением ты великолепен? Креативный? Верный, ищущий приключений и готовый рисковать? Три балла."},
+/* --- наследственность --- */
+{t:"yn", yes:10,
+ en:"If you're thinking disorder, now I'm just a chip off the old block. My parents were like this. Give yourself 10 points because ADHD is highly heritable.",
+ ru:"Если ты думаешь: «расстройство? Да я копия родителей, у них же так же», это десять баллов: СДВГ сильно наследуется.",
+ note:"Хотя в субтитрах здесь тоже немного каша. Смысл ровно такой."},
+/* --- медитация --- */
+{t:"yn", yes:1,
+ en:"If someone has suggested that you might try meditation and your reaction was, give yourself one point for each inch your jaw dropped.",
+ ru:"Кто-то советовал тебе попробовать медитацию, а твоя реакция была... Балл за каждый дюйм, на который открылась челюсть.",
+ note:"Реакция в субтитрах не записана. Уже можно представить."},
+/* --- финальный вопрос --- */
+{t:"chips", o:[["Не сомневаюсь",0],["Всё ещё сомневаюсь",500]],
+ en:"If you now have a score of 100 or more, but still really kind of doubt you have ADHD, give yourself another 500 points.",
+ ru:"Если у тебя сейчас 100 баллов и больше, а ты всё ещё немного сомневаешься, что у тебя СДВГ, это плюс ещё 500.",
+ note:"Условие в ролике: 100+ баллов."}
+];
+
+/* ---- логика ---- */
+const TOTAL = Q.length;
+const FINALE = Q.length - 1; // вопрос про 500 баллов
+
+// у вопросов "Да/Нет" балл лежит в yes - собираем из него таблицу o
+Q.forEach(q=>{ if(q.t==="yn") q.o=[["Да",q.yes],["Нет",0]]; });
+
+function maxOf(q){
+  if(q.t==="yn") return Math.max(q.yes,0);
+  if(q.t==="chips") return Math.max(0,...q.o.map(x=>x[1]));
+  if(q.t==="multi") return q.o.reduce((s,x)=>s+Math.max(x[1],0),0);
+  return 0;
+}
+const MAX_BASE = Q.slice(0,FINALE).reduce((s,q)=>s+maxOf(q),0) + 3; // +3 за кнопку «отвлёкся»
+
+let idx = -1;            // -1 = интро
+let backBonus = false;   // бонус за кнопку «отвлёкся»: +3 один раз за прохождение
+const answers = new Array(TOTAL).fill(null); // index выбора (для multi - массив булевых)
+
+function score(){
+  let s=backBonus?3:0;
+  for(let i=0;i<TOTAL;i++){
+    const a=answers[i]; if(a===null) continue;
+    const q=Q[i];
+    if(q.t==="yn"||q.t==="chips") s+=q.o[a][1];
+    else if(q.t==="multi") a.forEach((v,k)=>{ if(v) s+=q.o[k][1]; });
+  }
+  return s;
+}
+function plural(n,a,b,c){n=Math.abs(n);const m=n%100;if(m>=11&&m<=14)return c;const d=n%10;if(d===1)return a;if(d>=2&&d<=4)return b;return c;}
+
+const app=document.getElementById("app");
+const fill=document.getElementById("fill");
+const counter=document.getElementById("counter");
+const scoreEl=document.getElementById("score");
+
+function chrome(){
+  const done = idx<0?0:Math.min(idx+1,TOTAL);
+  fill.style.width = (done/TOTAL*100).toFixed(1)+"%";
+  counter.textContent = idx<0 ? "" : done+" / "+TOTAL;
+  const s=score();
+  scoreEl.textContent = s+" "+plural(s,"балл","балла","баллов");
+  document.getElementById("fab").classList.toggle("show", idx>=0 && idx<TOTAL);
+}
+
+function floatPlus(text){
+  const el=document.createElement("div");
+  el.className="float"; el.textContent=text;
+  el.style.left=(30+Math.random()*40)+"%";
+  el.style.top=(40+Math.random()*20)+"%";
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),900);
+}
+
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t=setTimeout(()=>t.classList.remove("show"),1600);
+}
+
+function render(){
+  chrome();
+  if(idx<0){ renderIntro(); return; }
+  if(idx>=TOTAL){ renderResult(); return; }
+  const q=Q[idx];
+  let html='<section class="screen">';
+  html+='<div class="q">'+q.ru+'</div>';
+  if(q.note) html+='<div class="note">'+q.note+'</div>';
+  html+='<div class="en">'+q.en+'</div>';
+
+  if(q.t==="yn"){
+    html+='<div class="opts">'+
+      '<button class="opt-yes'+(answers[idx]===0?" sel":"")+'" data-a="0">Да</button>'+
+      '<button class="opt-no'+(answers[idx]===1?" sel":"")+'" data-a="1">Нет</button></div>';
+  } else if(q.t==="chips"){
+    html+='<div class="opts">'+q.o.map((o,i)=>
+      '<button class="chip'+(answers[idx]===i?" on":"")+'" data-a="'+i+'">'+o[0]+'</button>').join("")+'</div>';
+    if(answers[idx]!==null) html+='<div class="opts"><button class="btn-main" id="next">Дальше →</button></div>';
+  } else if(q.t==="multi"){
+    const sel=answers[idx]||q.o.map(()=>false);
+    html+='<div class="multi-list">'+q.o.map((o,i)=>
+      '<button class="multi-item'+(sel[i]?" on":"")+'" data-m="'+i+'"><span class="tick">✓</span>'+o[0]+'</button>').join("")+'</div>';
+    html+='<div class="opts"><button class="btn-main" id="next">Дальше →</button></div>';
+  } else {
+    html+='<div class="opts"><button class="btn-main" id="next">Дальше →</button></div>';
+  }
+
+  html+='</section>';
+  html+='<div class="nav"><button class="btn-ghost" id="back">← Назад</button></div>';
+  app.innerHTML=html;
+
+  app.querySelectorAll("[data-a]").forEach(b=>b.addEventListener("click",()=>{
+    const a=+b.dataset.a;
+    if(q.t==="yn"){
+      answers[idx]=a;
+      const gained=q.o[a][1];
+      if(gained) floatPlus((gained>0?"+":"")+gained);
+      idx++; render();
+    } else { // chips
+      answers[idx]=a;
+      const g=q.o[a][1];
+      if(g!==0) floatPlus((g>0?"+":"")+g);
+      render();
+    }
+  }));
+  app.querySelectorAll("[data-m]").forEach(b=>b.addEventListener("click",()=>{
+    const i=+b.dataset.m;
+    const sel=answers[idx]||q.o.map(()=>false);
+    sel[i]=!sel[i];
+    answers[idx]=sel;
+    render();
+  }));
+  const nx=app.querySelector("#next");
+  if(nx) nx.addEventListener("click",()=>{ idx++; render(); });
+  const bk=app.querySelector("#back");
+  if(bk) bk.addEventListener("click",()=>{ idx=Math.max(-1,idx-1); render(); });
+}
+
+function renderIntro(){
+  app.innerHTML=
+  '<section class="screen">'+
+    '<div class="kicker">The Unofficial ADHD Test for Adults</div>'+
+    '<h1 class="title">Неофициальный тест на СДВГ</h1>'+
+    '<p class="lead">В оригинале тебе предлагают вести счёт самому: один балл за каждое «да». Здесь мы считаем за тебя, если, конечно, ты не отвлечёшься по дороге.</p>'+
+    '<p class="lead">Чем больше баллов, тем вероятнее, что у тебя СДВГ. Это, конечно, не повод ставить диагноз по ссылке из чата.</p>'+
+    '<p class="disc">Очевидно, это не медицинский диагноз. Тест для взрослых, которые когда-нибудь задумывались, но толком не понимают, что такое СДВГ. И для тех, у кого СДВГ уже диагностирован: им просто интересно, сколько разных способов это проявляется.</p>'+
+    '<div class="opts"><button class="btn-main" id="start">Начать тест →</button></div>'+
+    '<div class="en">Welcome to the unofficial ADHD test for adults. During this test, you will be asked to keep your own score, giving yourself one point for each yes.</div>'+
+  '</section>'+
+  '<div class="nav"><a href="'+VIDEO+'" target="_blank" rel="noopener"><button class="btn-ghost">▶ Оригинал на YouTube</button></a></div>';
+  document.getElementById("start").addEventListener("click",()=>{ idx=0; render(); });
+}
+
+function category(s){
+  const p=Math.min(1, s/MAX_BASE);
+  if(p<0.12) return {ru:"Слишком нормальный", en:"Suspiciously normal",
+    txt:"Либо ты честно прошёл, либо соврал на каждом пункте. Тест это не различает. Серьёзно: низкий балл это не приговор и не диагноз, просто низкий балл."};
+  if(p<0.28) return {ru:"Есть что проверить", en:"Worth a look",
+    txt:"Пока ничего не доказано, но разговор с врачом уже не будет лишним."};
+  if(p<0.5) return {ru:"Похоже на дело", en:"Looking familiar",
+    txt:"Ты зевнул хотя бы раз, пока проходил это. И это считается симптомом по правилам этого теста, во всяком случае."};
+  if(p<0.75) return {ru:"Легенда жанра", en:"A legend",
+    txt:"Ты досчитал до конца, не бросив на середине. Уже достижение для теста на СДВГ."};
+  return {ru:"Welcome to my world", en:"Welcome to my world",
+    txt:"Добро пожаловать в клуб. Баллы при себе, диагнозов не выдаём, дверь открыта."};
+}
+
+function renderResult(){
+  const s=score();
+  const c=category(s);
+  fill.style.width="100%"; counter.textContent=TOTAL+" / "+TOTAL;
+  app.innerHTML=
+  '<section class="screen">'+
+    '<div class="kicker">Результат</div>'+
+    '<div class="bignum">'+s+'</div>'+
+    '<div class="cat">'+c.ru+'</div>'+
+    '<div class="cat-en">'+c.en+'</div>'+
+    '<p class="flavor">'+c.txt+'</p>'+
+    '<p class="flavor">А теперь просто закрой вкладку. Вернёшься через 6 месяцев, посмотришь на цифры и не поймёшь, что там было. Welcome to my world.</p>'+
+    '<p class="disc">Это сатира, а не диагноз. Если тест попал в больно, поговори с врачом, а не с тестом.</p>'+
+    '<div class="opts">'+
+      '<button class="btn-main" id="copy">Скопировать результат</button>'+
+    '</div>'+
+    '<div class="foot">'+
+      '<button class="btn-ghost" id="restart">Пройти заново</button>'+
+      '<a href="'+VIDEO+'" target="_blank" rel="noopener"><button class="btn-ghost">▶ Оригинал на YouTube</button></a>'+
+    '</div>'+
+    '<div class="en">Now, take your piece of paper and put it aside because you\'ll add it up later and you need a break. And don\'t worry, you\'ll find the paper again in 6 months. And then you\'ll look at the numbers and have no idea what it is. Welcome to my world.</div>'+
+  '</section>'+
+  '<div class="nav"><button class="btn-ghost" id="back">← Назад</button></div>';
+
+  document.getElementById("copy").addEventListener("click",async()=>{
+    const txt="Неофициальный тест на СДВГ: "+s+" "+plural(s,"балл","балла","баллов")+". "+c.ru+". "+VIDEO;
+    try{ await navigator.clipboard.writeText(txt); }catch(e){
+      const ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy"); ta.remove();
+    }
+    showToast("Скопировано");
+  });
+  document.getElementById("restart").addEventListener("click",()=>{
+    answers.fill(null); backBonus=false;
+    fab.classList.remove("claimed");
+    fab.textContent="🙈 Я отвлёкся и вернулся";
+    idx=0; render();
+  });
+  document.getElementById("back").addEventListener("click",()=>{ idx=TOTAL-1; render(); });
+}
+
+const fab=document.getElementById("fab");
+fab.addEventListener("click",()=>{
+  if(backBonus) return;
+  backBonus=true;
+  fab.classList.add("claimed");
+  fab.textContent="✓ Вернулся, +3";
+  floatPlus("+3");
+  showToast("Бонус +3: ты вернулся.");
+  chrome();
+});
+
+render();
+</script>
+</body>
+</html>
